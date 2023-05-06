@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<script type="text/javascript" src="http://code.jquery.com/jquery-3.4.1.js"></script>
+<head>
+    <meta charset="UTF-8">
+    <title>商品列表</title>
+</head>
+<body>
+<center>
+    <table border="1px">
+        <thead>
+        <th>名称</th>
+        <th>价格</th>
+        <th>操作</th>
+        </thead>
+        <tbody>
+
+        </tbody>
+    </table>
+    <button onclick="shopCar()">购物车</button>
+</center>
+<script type="text/javascript">
+    window.onload = function (){
+        const token = localStorage.getItem("token")
+        $.ajax({
+            url : '/myweb/goodList',
+            type : 'POST',
+            dataType : 'json',
+            data : {
+
+            },
+            beforeSend : function (req){
+                req.setRequestHeader("token",token)
+            },
+            success : function (res){
+                // if(res.code == 1){
+                    for(let i = 0;i < res.length;i++){
+                        let tr = '<tr><td>' + res[i].goodName + '</td><td>' + res[i].price + '</td><td><input type="button" id="toAddShopCar" value="添加购物车" onclick="toAddShopCar(\'' + res[i].goodNo + '\',\'' + res[i].price + '\')"></td></tr>'
+                        $('tbody').append(tr)
+                    // }
+                }
+            },
+            error : function (res){
+
+            }
+        })
+    }
+
+    function toAddShopCar(goodNo,price){
+        const token = localStorage.getItem("token")
+        $.ajax({
+            url : '/myweb/toShopCar',
+            type : 'POST',
+            dataType : 'json',
+            data : {
+                goodNo : goodNo,
+                price : price
+            },
+            beforeSend : function (req){
+                req.setRequestHeader("token",token)
+            },
+            success : function (res){
+                if(res == 1){
+                    alert('添加成功')
+                }
+            },
+            error : function (res){
+
+            }
+        })
+    }
+
+    function shopCar(){
+        window.location.href = '/myweb/shopCar.html'
+    }
+</script>
+</body>
+</html>

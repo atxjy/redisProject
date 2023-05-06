@@ -1,0 +1,191 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<script type="text/javascript" src="http://code.jquery.com/jquery-3.4.1.js"></script>
+<head>
+    <meta charset="UTF-8">
+    <title>购物车</title>
+</head>
+<body>
+<center>
+    <table border="1px">
+        <thead>
+        <th>
+<!--            <input type="checkbox" id="chooseAll">-->
+        </th>
+        <th>商品</th>
+        <th>价格</th>
+        <th>数量</th>
+        <th>商店</th>
+        <th><input type="button" id="submitChoose" value="提交所选" onclick="submitChoose()"></th>
+        </thead>
+        <tbody>
+
+        </tbody>
+    </table>
+</center>
+<script type="text/javascript">
+    window.onload = function (){
+        loadAll()
+    }
+    function loadAll(){
+        const token = localStorage.getItem("token")
+        $.ajax({
+            url : '/myweb/shopCar',
+            type : 'POST',
+            dataType : 'json',
+            data : {
+
+            },
+            beforeSend : function (req){
+                req.setRequestHeader("token",token)
+            },
+            success : function (res){
+                $('tbody').empty()
+                for(let i = 0;i < res.length;i++){
+                    let tr = '<tr><td><input type="checkbox" id="chooseOne" value=' +  res[i].goodNo + '-' + res[i].shopNo + '></td><td id="goodNo">'
+                        + res[i].goodNo + '</td><td>'
+                        + res[i].price + '</td><td>'
+                        + res[i].num + '</td><td id="shopNo">'
+                        + res[i].shopNo
+                        + '</td><td><input type="submit" value="提交" id="submitOne" onclick="submitOne(\''
+                        + res[i].goodNo + '\',\'' + res[i].shopNo + '\')"></td><td><input type="submit" value="增加" id="addOne" onclick="incrOne(\''
+                        + res[i].goodNo + '\',\'' + res[i].shopNo + '\')"></td><td><input type="submit" value="减少" id="decrOne" onclick="decrOne(\''
+                        + res[i].goodNo + '\',\'' + res[i].shopNo + '\')"></td><td><input type="submit" value="删除" id="del" onclick="del(\''
+                        + res[i].goodNo + '\',\'' + res[i].shopNo + '\')"></td></tr>'
+                    $('tbody').append(tr)
+                }
+                let tr = '<input type="button" value="提交全部" id="submitAll">'
+                $('tbody').append(tr)
+            },
+            error : function (res){
+
+            }
+        })
+    }
+    function submitChoose(){
+        const token = localStorage.getItem("token")
+        const countsCheckBox = $("input[type='checkbox']:checked")
+        const goodNosAndShopNos = []
+        let str = ''
+        // const shopNos = []
+        for(let i = 0;i < countsCheckBox.length;i++){
+            // mysendGoodNo = {}
+            // mysendGoodNo['goodNo'] = countsCheckBox[i].value
+            // goodNos[i] = mysendGoodNo
+            str = str + countsCheckBox[i].value
+            str = str + "#"
+        }
+        $.ajax({
+            url: '/myweb/submitChoose',
+            type: 'POST',
+            dataType: 'json',
+            data: {
+                para : str
+            },
+            beforeSend : function (req){
+                req.setRequestHeader("token",token)
+            },
+            success: function (res){
+                if(res == 1){
+                    alert('提交成功')
+                    loadAll()
+                }else{
+                    alert('提交失败')
+                }
+            }
+        })
+    }
+
+    function submitOne(goodNo,shopNo){
+        const token = localStorage.getItem("token")
+        $.ajax({
+            url: '/myweb/submitOne',
+            type: 'POST',
+            dataType: 'json',
+            data: {
+                goodNo : goodNo,
+                shopNo : shopNo
+            },
+            beforeSend : function (req){
+                req.setRequestHeader("token",token)
+            },
+            success: function (res){
+                if(res == 1){
+                    alert('提交成功')
+                    loadAll()
+                }else {
+                    alert('提交失败，库存不足')
+                }
+            },
+            error: function (){
+
+            }
+        })
+
+    }
+    function incrOne(goodNo,shopNo){
+        const token = localStorage.getItem("token")
+        $.ajax({
+            url: '/myweb/updateNum',
+            type: 'POST',
+            dataType: 'json',
+            data: {
+                goodNo : goodNo,
+                shopNo : shopNo,
+                flag : 'incr'
+            },
+            beforeSend : function (req){
+                req.setRequestHeader("token",token)
+            },
+            success: function (res){
+                if(res == 1){
+                    loadAll()
+                }
+            }
+        })
+    }
+
+    function decrOne(goodNo,shopNo){
+        const token = localStorage.getItem("token")
+        $.ajax({
+            url: '/myweb/updateNum',
+            type: 'POST',
+            dataType: 'json',
+            data: {
+                goodNo : goodNo,
+                shopNo : shopNo,
+                flag : 'decr'
+            },
+            beforeSend : function (req){
+                req.setRequestHeader("token",token)
+            },
+            success: function (res){
+                if(res == 1){
+                    loadAll()
+                }
+            }
+        })
+    }
+    function del(goodNo,shopNo){
+        const token = localStorage.getItem("token")
+        $.ajax({
+            url: '/myweb/del',
+            type: 'POST',
+            dataType: 'json',
+            data: {
+                goodNo : goodNo,
+                shopNo : shopNo,
+            },
+            beforeSend : function (req){
+                req.setRequestHeader("token",token)
+            },
+            success: function (res){
+                if(res == 1){
+                    loadAll()
+                }
+            }
+        })
+    }
+</script>
+</body>
+</html>

@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<script type="text/javascript" src="http://code.jquery.com/jquery-3.4.1.js"></script>
+<head>
+    <meta charset="UTF-8">
+    <title>µÇÂ¼</title>
+</head>
+<body>
+<center>
+    ÕËºÅ£º<input type="text" id="name"><br>
+    ÃÜÂë£º<input type="password" id="password"><br>
+    <input type="button" id="bu" onclick="submit()" value="µÇÂ¼">
+</center>
+<script type="text/javascript">
+
+    function submit(){
+
+        const name = $('#name').val()
+        const password = $('#password').val()
+
+        $.ajax({
+            url : '/myweb/login',
+            type : 'post',
+            dataType : 'json',
+            data : {
+                name : name,
+                password : password
+            },
+            success : function (res){
+                if (res.code == 1){
+                    const token = res.token
+                    localStorage.setItem("token",token)
+                    window.location.href = '/myweb/goodsList.html'
+                }else {
+                    alert('ÃÜÂë´íÎó£¬ÇëÖØÐÂµÇÂ¼£¡')
+                    window.location.href = '/myweb/login.html'
+                }
+            }
+        })
+
+    }
+
+</script>
+</body>
+</html>
